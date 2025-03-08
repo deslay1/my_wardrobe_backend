@@ -1,5 +1,6 @@
 # backend/run.py
 from app import create_app, db
+import os
 
 app = create_app()
 
@@ -7,4 +8,7 @@ app = create_app()
 #     db.create_all()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    if os.getenv("FLASK_ENV") == "dev":
+        app.run(debug=True)
+    else:
+        app.run()

@@ -15,7 +15,10 @@ def create_app():
     CORS(app)  # Enable CORS for all routes
 
     # Database configuration from environment variable
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+    db_uri = os.getenv("SQLALCHEMY_DATABASE_URI")
+    if not db_uri:
+        raise RuntimeError("SQLALCHEMY_DATABASE_URI environment variable is not set.")
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 

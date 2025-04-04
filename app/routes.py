@@ -56,15 +56,19 @@ def upload_image_to_s3_and_get_url(image_file, item_name):
 @main.route("/clothing", methods=["POST"])
 def create_clothing_item():
     data = request.form  # Use request.form to get form data
-    image_file = request.files["image_url"]  # Get the uploaded image file
-
+    
     # Validate location
     if data["location"] not in ["London", "Stockholm"]:
         return jsonify({"error": "Location must be either London or Stockholm."}), 400
 
     count = int(data.get("count", 1))
-
-    s3_image_url = upload_image_to_s3_and_get_url(image_file, data["name"])
+    
+    # Make image upload optional
+    s3_image_url = None
+    if "image_url" in request.files:
+        image_file = request.files["image_url"]
+        if image_file.filename:  # Only upload if a file was actually selected
+            s3_image_url = upload_image_to_s3_and_get_url(image_file, data["name"])
 
     logging.info("creating clothing item")
     # Create a new clothing item
@@ -73,7 +77,7 @@ def create_clothing_item():
         category=data["category"],
         main_color=data["main_color"],
         secondary_color=data.get("secondary_color"),
-        image_url=s3_image_url,
+        image_url=s3_image_url,  # This can now be None
         location=data["location"],
         count=count,  # Set the count
     )
